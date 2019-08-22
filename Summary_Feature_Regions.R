@@ -68,7 +68,10 @@ if (!check){
 
 DataFrame$Region <- DataRegion$Region # Extract Study region index
 rm(DataRegion) # we do not need it anymore
-    
+
+# Possible indexes of pixels indicating which regions to which they belong
+# For example: China will include pixels that have indexes 1, 2, 4, ...
+# The 'Adjust' means that there are overlay regions in that country
 countries <- list(c(1, 2, 4, 7, 9, 10, 11, 12, 16, 34), # CHINA --> Adjust
                   c(29, 31, 32, 33, 35, 36), # Taiwan
                   c(43), # Cambodia

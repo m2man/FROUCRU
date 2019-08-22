@@ -65,6 +65,7 @@ Standardize_DF <- function(df, mean_vec, std_vec){
 set.seed(5)
 
 # ===== Read dataset =====
+cat('Read the dataset ...\n')
 dataset <- readRDS(paste0(Savepath, 'DataRegression_NewFOI.Rds')) # Read Study Feature with New FOI data
 
 ########## if only bioclimatic 
@@ -73,6 +74,7 @@ dataset <- readRDS(paste0(Savepath, 'DataRegression_NewFOI.Rds')) # Read Study F
 # dataset <- dataset[,-c(20, 25, 26)]
 
 # ===== Divide into 3 subsets as Train 80% - Validate 10% - Test 10% =====
+cat('Sample Train-Validate-Test set ...\n')
 train_portion <- 0.8
 validate_portion <- 0.1
 
@@ -94,6 +96,7 @@ data_test <- dataset_shuffle[(ntrain + nvalidate + 1) : ntotal, ]
 # We need to standardize the training data --> then use this Training standard information to apply for Validate and Testing
 # Standardize helps to reduce the significant different within a feature (like Population) --> better result
 
+cat('Standardize the dataset ...\n')
 temp <- Standardize_Train(data_train)
 data_train_standardized <- temp[[1]]
 mean_train <- temp[[2]]
@@ -128,10 +131,13 @@ data_test_standardized <- Standardize_DF(data_test, mean_train, std_train)
 #                    p[[25]], p[[26]], nrow = 3)
 
 ##### TRAINING #####
+cat('Training ...\n')
 fmla <- as.formula(paste("FOI ~ ", paste(colnames(data_train_standardized)[-ncol(data_train_standardized)], collapse= "+")))
 
 # linear regression
 lmMod <- lm(fmla, data = data_train_standardized)
+saveRDS(lmMod, paste0(Savepath, 'Model_Linear_Regression.Rds'))
+
 predict_validate <- Predict_Linear_Model(lmMod, data_validate_standardized[-ncol(data_validate_standardized)])
 predict_train <- Predict_Linear_Model(lmMod, data_train_standardized[-ncol(data_train_standardized)])
 
@@ -139,7 +145,10 @@ predict_train <- Predict_Linear_Model(lmMod, data_train_standardized[-ncol(data_
 RSQ_validate <- RSQ(predict_validate, data_validate_standardized$FOI)
 RSQ_train <- RSQ(predict_train, data_train_standardized$FOI)
 
+cat('===== Result =====\nR-squared on Train set:', RSQ_train, '\nR-squared on Validate set:', RSQ_validate, '\n==================\n')
+
 # ===== Compare with Rstan Distribution =====
+cat('VISUALIZING ...\n')
 idx_validate <- idx_shuffle[(ntrain + 1):(ntrain + nvalidate)]
 idx_train <- idx_shuffle[1 : ntrain]
 idx_test <- idx_shuffle[(ntrain + nvalidate + 1) : ntotal]
