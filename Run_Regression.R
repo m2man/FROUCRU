@@ -37,7 +37,7 @@ Predict_Linear_Model <- function(model, data){
     # data contains only ft, not including outcome
     predict <- predict(model, data)
     predict[predict < 0] <- 0
-    return(predict)
+    return(as.numeric(predict))
 }
 
 Standardize_Train <- function(df){
@@ -102,6 +102,10 @@ data_train_standardized <- temp[[1]]
 mean_train <- temp[[2]]
 std_train <- temp[[3]]
 rm(temp)
+
+# Save the mean and std paras --> use to predict new data (newdata --> need to standardize first --> then apply model to predict)
+parameter <- data.frame(mean_train = mean_train, std_train = std_train)
+saveRDS(parameter, paste0(Savepath, 'Parameter_Model.Rds'))
 
 # Use mean and std in Training standardize to standardize validate and test set
 data_validate_standardized <- Standardize_DF(data_validate, mean_train, std_train)
